@@ -20,18 +20,33 @@ our @EXPORT = qw(
 	substrings
 );
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
-sub substrings($) {
-    my ($string) = @_;
+sub substrings($;$) {
+    my ($string, $length) = @_;
     return undef unless defined $string;
+    
+    # paramter validation
     if (my $r = ref($string)) { 
-        croak "Please call me  `substrings STRING`, but not with $r";
+        croak "Please call me  `substrings STRING [,LENGTH]`
+              but not with substrings $r, LENGTH";
     }
+    if (defined($length) and (my $r = ref($length) or $length !~ /^\d+/)) {
+        croak "Please call me `substrings STRING [,LENGTH]`
+               but not with substrings '$string', $r";
+    }
+    
+    
     my $strlength = length($string);
     my @s = ();
-    foreach my $length (1 .. $strlength) {
-        push @s, map {substr $string, $_, $length} (0 .. $strlength - $length);
+    if (defined $length) {
+        return @s if $length == 0;
+        push @s, map {substr $string, $_, $length} (0 .. $strlength-$length);
+    } else {
+        foreach my $length (1 .. $strlength) {
+            push @s, map {substr $string, $_, $length} 
+                         (0 .. $strlength - $length);
+        }
     }
     return @s;
 }
@@ -47,22 +62,29 @@ String::Substrings - module to extract some/all substrings from a string
 
   use String::Substrings;
  
-  my @parts = substrings $string;
+  my @parts  = substrings $string;
+  my @tripel = substrings $string, 3;
   
 =head1 DESCRIPTION
 
 This module has only one method C<substrings>.
 It is called as
 
-  substrings STRING
+  substrings STRING [,LENGTH]
   
-It returns all substrings with a length of 1 or greater 
+Without a length specification,
+tt returns all substrings with a length of 1 or greater 
 including the string itselfs. The substrings returned are
 sorted for the length (starting with length 1) and for their index.
 E.g. C<substrings "abc"> returns C<("a","b","c","ab","bc","abc")>.
 This order is guaranteed to stay even in future versions.
 That also includes that the returned list of substrings needn't be unique.
 E.g. C<substrings "aaa"> returns C<("a","a","a","aa","aa","aaa")>.
+
+With a length specification,
+it returns only substrings of this length.
+This notion is equivalent to
+C<grep {length($_) == $length} substrings $string>.
 
 C<substrings ""> returns an empty list,
 C<substrings undef> returns undef and

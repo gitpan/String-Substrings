@@ -1,4 +1,4 @@
-String/Substrings version 0.01
+String/Substrings version 0.02
 ==============================
 
 NAME
@@ -7,7 +7,8 @@ NAME
 SYNOPSIS
       use String::Substrings;
  
-      my @parts = substrings $string;
+      my @parts  = substrings $string;
+      my @tripel = substrings $string, 3;
   
 INSTALLATION
 
@@ -26,6 +27,7 @@ This module requires these other modules and libraries:
   Test::Differences 
   Test::Exception   
   Test::More        
+  Test::ManyParams
   
 All these modules are only needed for the tests.
 
